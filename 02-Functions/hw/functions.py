@@ -5,17 +5,21 @@ from collections import namedtuple
 def letters_range(*args, **kwargs):
     """
     letters_range(stop) -> part of the alphabet
-    letters_range(start, stop[, step, some_dict]) -> part of the alphabet
+    letters_range(start, stop[, step, some_dict]) ->
+    part of the alphabet
 
-    Return an object that produces a sequence of symbols from start (inclusive)
-    to stop (exclusive) by step. letters_range(g) produces 'a', 'b', 'c', 'd', 'e', 'f'.
+    Return an object that produces a sequence of symbols from start
+    (inclusive) to stop (exclusive) by step.
+    letters_range(g) produces 'a', 'b', 'c', 'd', 'e', 'f'.
     When step is given, it specifies the increment (or decrement).
-    When some_dict is given, it replaces Latin alphabet with the specified symbols.
-    letters_range('g', 'p', **{'l': 7, 'o': 0}) produces 'g', 'h', 'i', 'j', 'k', '7', 'm', 'n', '0'.
+    When some_dict is given, it replaces Latin alphabet with the
+    specified symbols. letters_range('g', 'p', **{'l': 7, 'o': 0})
+    produces 'g', 'h', 'i', 'j', 'k', '7', 'm', 'n', '0'.
     """
 
     alphabet = [
-        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
+        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+        'o', 'p', 'q', 'r', 's', 't', 'u', 'v',
         'w', 'x', 'y', 'z'
     ]
     new_args = {i: i for i in args}
@@ -46,11 +50,12 @@ def letters_range(*args, **kwargs):
 def atom(arg=None):
     """
     :param arg: incoming argument
-    :return: tuple of 4 functions: get_value, set_value, process_value, delete_value
+    :return: tuple(get_value, set_value, process_value, delete_value)
     """
 
-    # To provide functions call by their name outside the atom namedtuple is used
-    Functions = namedtuple("Functions", 'get_value set_value process_value delete_value')
+    # To provide functions call by their name namedtuple is used
+    Functions = namedtuple("Functions",
+                           'get_value set_value process_value delete_value')
 
     def get_value():
         try:
@@ -115,7 +120,28 @@ global_counter_name = 0
 
 
 def main():
-    pass
+    # 1 task
+    print(letters_range('g', 'p', **{'g': 7, 'o': 0}), '\n')
+
+    # 2 task
+    a = atom(333)
+    print(a.get_value())
+    print(a.set_value(444))
+    print(a.get_value())
+    print(a.delete_value())
+    print(a.get_value(), '\n')
+
+    # 3 task
+    new_func = make_it_count(min, 'global_counter_name')
+    print(new_func([10, 3, 4, 2, 8]), '\n')
+
+    # 4 task
+    fancy_func = modified_func(min, *[8, 5, 3, 2, -10])
+    print(fancy_func(*[-20, -30]))
+    fancy_func2 = modified_func(letters_range, 'g', 'p')
+    print(fancy_func2(**{'l': 7, 'o': 0}))
+    print(inspect.getdoc(fancy_func2))
+
 
 if __name__ == '__main__':
     main()

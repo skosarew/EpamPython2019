@@ -4,13 +4,14 @@ file_test = 'test.json'
 
 
 def files_load(path):
-    """Считывание файлов,  устранение дупликатов и сортировка объектов в низходящем порядке по цене
-    в случае коллизий сортировка по сорту в лексикографическом порядке"""
+    """Reads files, eliminates duplicates and sorts objects in
+    descending order by price; in case of collisions,
+    sorts by wine sort in lexicographical order"""
     wines = set()
     wine_dict = {}
     parsed_wines = []
 
-    # Считывание файлов, устранение дубликатов
+    # Reading files, eliminating duplicates
     with open(path[0]) as f1, open(path[1]) as f2:
         for wine in f1.read()[2:-1].split('}, {'):
             # print(repr(wine))
@@ -21,7 +22,7 @@ def files_load(path):
             wine = wine.strip('}')
             wines.add(wine)
 
-    # Формирование списка, содержащего вина в виде словарей
+    # Creating a list containing wines in the form of dictionaries
     for wine in wines:
         wine = wine.split(', "')
         for entity in wine:
@@ -40,14 +41,16 @@ def files_load(path):
         parsed_wines.append(wine_dict)
         wine_dict = {}
 
-    # Сортировка
-    parsed_wines = sorted(sorted(parsed_wines, key=lambda x: x['title'], reverse=False),
-                          key=lambda x: int(x['price']) if x['price'] is not None else -1, reverse=True)
+    # Sorting by two keys
+    parsed_wines = sorted(
+        sorted(parsed_wines, key=lambda x: x['title'], reverse=False),
+        key=lambda x: int(x['price']) if x['price'] is not None else -1,
+        reverse=True)
     return parsed_wines
 
 
 def file_dump(path, parsed_wines):
-    # Запись в общий файл
+    # Writing to a winedata_full.json
     with open(path, 'w') as out_f:
         out_f.write('[')
         for wine in parsed_wines:
@@ -65,15 +68,16 @@ def file_dump(path, parsed_wines):
 
 
 def stats_dump_json(path, interesting_wines, global_stat):
-    """Merge 2 файлов в один winedata_full.json"""
+    """Writes statistics to stats.json"""
     information = (
-        "avarege_price", "min_price", "max_price", "most_common_region", "most_common_country", "avarage_score")
+        "avarege_price", "min_price", "max_price", "most_common_region",
+        "most_common_country", "avarage_score")
 
     with open(path, 'w') as out_f:
         out_f.write('{"statistics": {\n')
         out_f.write('               "wine": {\n')
 
-        # Запись статистики по интересующим винам
+        # Writing statistics on wines of interest
         for wine, stats in interesting_wines.items():
             out_f.write(f'                      "{wine}": ')
             out_f.write('{')
@@ -87,7 +91,7 @@ def stats_dump_json(path, interesting_wines, global_stat):
         out_f.seek(out_f.tell() - 2)
         out_f.write('\n               },')
 
-        # Запись всей статистики
+        # Writing global statistics
         for key, val in global_stat.items():
             out_f.write(f'\n               "{key}": ')
             out_f.write('{')
@@ -104,15 +108,17 @@ def stats_dump_json(path, interesting_wines, global_stat):
 
 
 def stats_dump_markdown(interesting_wines, global_stat):
-    """Оформление результатов из пункта 3 в виде красивого markdown файла"""
+    """Writing the results from task 3 as a beautiful markdown file"""
     information = (
-        "avarege_price", "min_price", "max_price", "most_common_region", "most_common_country", "avarage_score")
+        "avarege_price", "min_price", "max_price", "most_common_region",
+        "most_common_country", "avarage_score")
 
-    # Запись статистики по интересующим винам
+    # Writing statistics on wines of interest
     with open('stats.md', "w", encoding="utf-8") as out_f:
         out_f.write('## Статистика по интересующим винам: \n\n')
         for wine, stats in interesting_wines.items():
-            out_f.write(f'{wine.encode("utf-8").decode("unicode-escape")}:\n\n')
+            out_f.write(
+                f'{wine.encode("utf-8").decode("unicode-escape")}:\n\n')
             for i in information:
                 if stats[i] is None:
                     out_f.write(f'* {i}: {"null"}')
@@ -121,14 +127,15 @@ def stats_dump_markdown(interesting_wines, global_stat):
                 out_f.write('\n')
             out_f.write('\n')
 
-        # Запись всей статистики
+        # Writing global statistics
         out_f.write('## Общая статистика: \n\n')
         for entity, stat in global_stat.items():
             out_f.write(f'{entity}:\n')
             for key, val in stat.items():
                 out_f.write(f'{key}:\n')
                 for i in val:
-                    out_f.write(f'* {i.encode("utf-8").decode("unicode-escape")}\n')
+                    out_f.write(
+                        f'* {i.encode("utf-8").decode("unicode-escape")}\n')
                 out_f.write('\n\n')
 
 
@@ -178,9 +185,9 @@ def most_common_country(interesting_wines):
 
 def avarage_score(interesting_wines):
     for wines, values in interesting_wines.items():
-        # print(wines, values)
         if len(values['points']) != 0:
-            average_sc = sum(map(float, values['points'])) / len(values['points'])
+            average_sc = sum(map(float, values['points'])) / len(
+                values['points'])
             values['avarage_score'] = average_sc
         else:
             values['avarage_score'] = None
@@ -257,8 +264,9 @@ def find_most_active_commentator(commentators_stat):
     return mac_ans
 
 
-def info_for_wines(wines_processed, interesting_wines, information, global_stat):
-    """Сбор статистики для задания 3"""
+def info_for_wines(wines_processed, interesting_wines, information,
+                   global_stat):
+    """Collects statistics for task 3"""
     highest_sc = -float("inf")
     lowest_sc = float("inf")
     mew = wines_processed[0]['price']
@@ -275,10 +283,12 @@ def info_for_wines(wines_processed, interesting_wines, information, global_stat)
 
     for wine_processed in wines_processed:
         if wine_processed['price'] == mew:
-            global_stat['most_expensive_wine'][mew].append(wine_processed['title'])
+            global_stat['most_expensive_wine'][mew].append(
+                wine_processed['title'])
 
         # find cheapest_wine
-        if wine_processed['price'] is not None and int(wine_processed['price']) < int(cw):
+        if wine_processed['price'] is not None and int(
+                wine_processed['price']) < int(cw):
             cw = wine_processed['price']
             global_stat['cheapest_wine'] = defaultdict(list)
             global_stat['cheapest_wine'][cw].append(wine_processed['title'])
@@ -290,36 +300,43 @@ def info_for_wines(wines_processed, interesting_wines, information, global_stat)
         if curr_score > highest_sc:
             global_stat['highest_score'] = defaultdict(list)
             highest_sc = curr_score
-            global_stat['highest_score'][highest_sc].append(wine_processed['title'])
+            global_stat['highest_score'][highest_sc].append(
+                wine_processed['title'])
         elif curr_score == highest_sc:
-            global_stat['highest_score'][highest_sc].append(wine_processed['title'])
+            global_stat['highest_score'][highest_sc].append(
+                wine_processed['title'])
 
         # find lowest_score
         if curr_score < lowest_sc:
             global_stat['lowest_score'] = defaultdict(list)
             lowest_sc = curr_score
-            global_stat['lowest_score'][lowest_sc].append(wine_processed['title'])
+            global_stat['lowest_score'][lowest_sc].append(
+                wine_processed['title'])
         elif curr_score == lowest_sc:
-            global_stat['lowest_score'][lowest_sc].append(wine_processed['title'])
+            global_stat['lowest_score'][lowest_sc].append(
+                wine_processed['title'])
 
         # information gathering for finding countries prices
         if wine_processed['price'] is not None:
-            countries_stat_price[wine_processed['country']].append(wine_processed['price'])
+            countries_stat_price[wine_processed['country']].append(
+                wine_processed['price'])
 
         # information gathering for finding countries points
         if wine_processed['points'] is not None:
-            countries_stat_point[wine_processed['country']].append(wine_processed['points'])
+            countries_stat_point[wine_processed['country']].append(
+                wine_processed['points'])
 
         # information gathering for finding most active commentator
         if wine_processed['taster_name'] is not None:
             commentators_stat[wine_processed['taster_name']] += 1
 
-        # Обратка интересующих вин (задание 3.1)
+        # Processing wines of interest (task 3.1)
         for wine in interesting_wines:
             if wine_processed['variety'] == wine:
                 for info in information:
                     if wine_processed[info] is not None:
-                        interesting_wines[wine][info].append(wine_processed[info])
+                        interesting_wines[wine][info].append(
+                            wine_processed[info])
 
     # find most_expensive_coutry
     mec = find_most_expensive_coutry(countries_stat_price)
@@ -358,17 +375,22 @@ def main():
                   'Red Blend'
                   )
 
-    global_stat = {'most_expensive_wine': defaultdict(list), 'cheapest_wine': defaultdict(list),
-                   'highest_score': defaultdict(list), 'lowest_score': defaultdict(list),
-                   'most_expensive_coutry': defaultdict(list), 'cheapest_coutry': defaultdict(list),
+    global_stat = {'most_expensive_wine': defaultdict(list),
+                   'cheapest_wine': defaultdict(list),
+                   'highest_score': defaultdict(list),
+                   'lowest_score': defaultdict(list),
+                   'most_expensive_coutry': defaultdict(list),
+                   'cheapest_coutry': defaultdict(list),
                    'most_rated_country': defaultdict(list),
-                   'underrated_country': defaultdict(list), 'most_active_commentator': defaultdict(list)}
+                   'underrated_country': defaultdict(list),
+                   'most_active_commentator': defaultdict(list)}
 
     information = ('price', 'region_1', 'region_2', 'country', 'points')
     interesting_wines = {i: {j: [] for j in information} for i in wines_list}
 
     wines_processed = files_load(files)
-    interesting_wines = info_for_wines(wines_processed, interesting_wines, information, global_stat)
+    interesting_wines = info_for_wines(wines_processed, interesting_wines,
+                                       information, global_stat)
 
     avarege_price(interesting_wines)
     avarage_score(interesting_wines)

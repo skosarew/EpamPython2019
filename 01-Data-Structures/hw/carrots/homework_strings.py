@@ -45,7 +45,8 @@ def translate_from_dna_to_rna(dna):
 
     for key, val in dna.items():
         for nucleotides in val:
-            rna[key].append(''.join([complementarity[nucleotide] for nucleotide in nucleotides]))
+            rna[key].append(''.join(
+                [complementarity[nucleotide] for nucleotide in nucleotides]))
     return rna
 
 
