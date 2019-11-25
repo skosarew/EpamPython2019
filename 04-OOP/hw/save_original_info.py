@@ -19,31 +19,13 @@ print(custom_sum.__original_func)  # <function custom_sum at <some_id>>
 import functools
 
 
-def check_with_class(original_func):
-    """
-    Realization based on class.
-    :param original_func:
-    """
-
-    class MyDec:
-        def __init__(self, original_func):
-            self.func = original_func
-
-        def __call__(self, *args, **kwargs):
-            self.__name__ = original_func.__name__
-            self.__doc__ = original_func.__doc__
-            self.__original_func = original_func
-            self.func(*args, **kwargs)
-
-    return MyDec
-
-
 def check(original_func):
     def decorator(func):
-        @functools.wraps(original_func)
         def inner(*args, **kwargs):
             return func(*args, **kwargs)
 
+        inner.__name__ = original_func.__name__
+        inner.__doc__ = original_func.__doc__
         inner.__original_func = original_func
         return inner
 
@@ -77,7 +59,3 @@ if __name__ == '__main__':
 
     # the result returns without printing
     without_print(1, 2, 3, 4)
-
-    # replace decorator with @check_with_class(func)
-    # without_print2 = custom_sum._MyDec.__original_func
-    # without_print2(1, 2, 3, 4)
