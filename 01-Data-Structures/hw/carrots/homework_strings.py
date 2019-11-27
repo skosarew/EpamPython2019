@@ -42,10 +42,10 @@ def translate_from_dna_to_rna(dna):
     """Transcription -- synthesis RNA from DNA"""
     complementarity = {'A': 'U', 'T': 'A', 'G': 'C', 'C': 'G'}
     rna = defaultdict(list)
-
-    for key, val in dna.items():
-        for nucleotides in val:
-            rna[key].append(''.join(
+    print(dna)
+    for gene, dnas in dna.items():
+        for nucleotides in dnas:
+            rna[gene].append(''.join(
                 [complementarity[nucleotide] for nucleotide in nucleotides]))
     return rna
 

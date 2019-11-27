@@ -14,11 +14,9 @@ def files_load(path):
     # Reading files, eliminating duplicates
     with open(path[0]) as f1, open(path[1]) as f2:
         for wine in f1.read()[2:-1].split('}, {'):
-            # print(repr(wine))
             wine = wine.strip('}')
             wines.add(wine)
         for wine in f2.read()[2:-1].split('}, {'):
-            # print(repr(wine))
             wine = wine.strip('}')
             wines.add(wine)
 
@@ -55,7 +53,6 @@ def file_dump(path, parsed_wines):
         out_f.write('[')
         for wine in parsed_wines:
             out_f.write('\n    {')
-            len(wine)
             for key, val in wine.items():
                 if val is None:
                     out_f.writelines(f'\n        "{key}": {"null"}, ')
@@ -92,13 +89,13 @@ def stats_dump_json(path, interesting_wines, global_stat):
         out_f.write('\n               },')
 
         # Writing global statistics
-        for key, val in global_stat.items():
-            out_f.write(f'\n               "{key}": ')
+        for stat, val in global_stat.items():
+            out_f.write(f'\n               "{stat}": ')
             out_f.write('{')
-            for number, w in val.items():
-                out_f.write(f'"{number}": [')
-                for i in w:
-                    out_f.write(f'"{i}", ')
+            for quantity, titles in val.items():
+                out_f.write(f'"{quantity}": [')
+                for title in titles:
+                    out_f.write(f'"{title}", ')
                 out_f.seek(out_f.tell() - 2)
                 out_f.write(']')
             out_f.write('}, ')
@@ -129,19 +126,20 @@ def stats_dump_markdown(interesting_wines, global_stat):
 
         # Writing global statistics
         out_f.write('## Общая статистика: \n\n')
-        for entity, stat in global_stat.items():
-            out_f.write(f'{entity}:\n')
-            for key, val in stat.items():
-                out_f.write(f'{key}:\n')
-                for i in val:
+        for stat, val in global_stat.items():
+            out_f.write(f'{stat}:\n')
+            for quantity, titles in val.items():
+                out_f.write(f'{quantity}:\n')
+                for title in titles:
                     out_f.write(
-                        f'* {i.encode("utf-8").decode("unicode-escape")}\n')
+                        f'* {title.encode("utf-8").decode("unicode-escape")}\n'
+                    )
                 out_f.write('\n\n')
 
 
 def avarege_price(interesting_wines):
     for wines, values in interesting_wines.items():
-        if len(values['price']) != 0:
+        if values['price']:
             average_pr = sum(map(int, values['price'])) / len(values['price'])
             values['avarege_price'] = average_pr
         else:
@@ -197,76 +195,77 @@ def avarage_score(interesting_wines):
 def find_most_expensive_coutry(countries_stat):
     mec = -float("inf")
     mec_ans = defaultdict(list)
-    for key, val in countries_stat.items():
+    for country, val in countries_stat.items():
         curr = sum(map(int, val)) / len(val)
         if curr > mec:
             mec = curr
             mec_ans = defaultdict(list)
-            mec_ans[mec].append(key)
+            mec_ans[mec].append(country)
         elif curr == mec:
-            mec_ans[mec].append(key)
+            mec_ans[mec].append(country)
     return mec_ans
 
 
 def find_cheapest_coutry(countries_stat):
     cc = float("inf")
     cc_ans = defaultdict(list)
-    for key, val in countries_stat.items():
+    for country, val in countries_stat.items():
         curr = sum(map(int, val)) / len(val)
         if curr < cc:
             cc = curr
             cc_ans = defaultdict(list)
-            cc_ans[cc].append(key)
+            cc_ans[cc].append(country)
         elif curr == cc:
-            cc_ans[cc].append(key)
+            cc_ans[cc].append(country)
     return cc_ans
 
 
 def find_most_rated_country(countries_stat_point):
     mrc = -float("inf")
     mrc_ans = defaultdict(list)
-    for key, val in countries_stat_point.items():
+    for country, val in countries_stat_point.items():
         curr = sum(map(int, val)) / len(val)
         if curr > mrc:
             mrc = curr
             mrc_ans = defaultdict(list)
-            mrc_ans[mrc].append(key)
+            mrc_ans[mrc].append(country)
         elif curr == mrc:
-            mrc_ans[mrc].append(key)
+            mrc_ans[mrc].append(country)
     return mrc_ans
 
 
 def find_underrated_country(countries_stat_point):
     uc = float("inf")
     uc_ans = defaultdict(list)
-    for key, val in countries_stat_point.items():
-        curr = sum(map(int, val)) / len(val)
+    for country, cost in countries_stat_point.items():
+        curr = sum(map(int, cost)) / len(cost)
         if curr < uc:
             uc = curr
             uc_ans = defaultdict(list)
-            uc_ans[uc].append(key)
+            uc_ans[uc].append(country)
         elif curr == uc:
-            uc_ans[uc].append(key)
+            uc_ans[uc].append(country)
     return uc_ans
 
 
 def find_most_active_commentator(commentators_stat):
     mac = 0
     mac_ans = defaultdict()
-    for key, val in commentators_stat.items():
-        curr = val
+    for commentator, points in commentators_stat.items():
+        curr = points
         if curr > mac:
             mac = curr
             mac_ans = defaultdict(list)
-            mac_ans[mac].append(key)
+            mac_ans[mac].append(commentator)
         elif curr == mac:
-            mac_ans[mac].append(key)
+            mac_ans[mac].append(commentator)
     return mac_ans
 
 
 def info_for_wines(wines_processed, interesting_wines, information,
                    global_stat):
     """Collects statistics for task 3"""
+
     highest_sc = -float("inf")
     lowest_sc = float("inf")
     mew = wines_processed[0]['price']
