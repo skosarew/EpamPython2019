@@ -32,7 +32,7 @@
 P.S. За незакрытый файловый дескриптор - караем штрафным дезе.
 
 """
-import json
+
 import matplotlib.pyplot as plt
 from collections import Counter
 from collections import defaultdict
@@ -114,24 +114,27 @@ def main():
     rna = translate_from_dna_to_rna(dna)
     protein = translate_rna_to_protein(rna, codons)
 
-    # статистика по количеству нуклеотидов в ДНК
+    # DNA nucleotide statistics
     with open('./files/statistics.txt', 'w') as f:
-        for key, val in count_nucl.items():
-            f.write(key + ':\n')
-            f.write(json.dumps(val) + '\n')
+        for gene, dnas in count_nucl.items():
+            f.write(gene + ':\n[')
+            for dna, number in dnas.items():
+                f.write(f'{dna} - {number}, ')
+            f.seek(f.tell() - 2)
+            f.write(']\n')
 
-    # последовательность РНК для каждого гена
+    # RNA sequence for each gene
     with open('./files/rna.txt', 'w') as f:
-        for key, val in rna.items():
-            f.write(key + ':\n')
-            for i in val:
-                f.write(i + '\n')
+        for gene, rnas in rna.items():
+            f.write(gene + ':\n')
+            for r in rnas:
+                f.write(r + '\n')
 
-    # последовательность кодонов для каждого гена
+    # Codon sequence for each gene
     with open('./files/protein.txt', 'w') as f:
-        for key, val in protein.items():
-            f.write(key + ':\n')
-            f.write(val + '\n')
+        for gene, codons in protein.items():
+            f.write(gene + ':\n')
+            f.write(codons + '\n')
 
 
 if __name__ == '__main__':
