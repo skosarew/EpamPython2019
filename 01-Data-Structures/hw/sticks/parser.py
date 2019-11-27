@@ -41,7 +41,9 @@ def files_load(path):
 
     # Sorting by two keys
     parsed_wines = sorted(
-        sorted(parsed_wines, key=lambda x: x['title'], reverse=False),
+        sorted(parsed_wines, key=lambda x: x['variety'] if x['variety'] is
+                                                           not None else
+        '~'),
         key=lambda x: int(x['price']) if x['price'] is not None else -1,
         reverse=True)
     return parsed_wines
