@@ -53,6 +53,95 @@ import datetime
 from collections import defaultdict
 
 
+class HomeworkResult:
+    """Represents homework results"""
+
+    def __init__(self, author, homework, solution):
+        if not isinstance(homework, Homework):
+            raise TypeError('You gave a not Homework object')
+        self.homework = homework
+        self.solution = solution
+        self.author = author
+        self.created = datetime.datetime.now()
+
+
+class DeadlineError(Exception):
+    """The deadline for this homework has already expired"""
+
+
+class Person:
+    def __init__(self, first_name, last_name):
+        self.first_name = first_name
+        self.last_name = last_name
+
+
+class Homework:
+    """
+    Represents homework given by the teacher.
+   :param text: The text of a homework
+   :param deadline: Time for homework
+   :ivar created: Time when homework was created
+
+    """
+
+    def __init__(self, text, deadline):
+        self.text = text
+        self.deadline = datetime.timedelta(days=deadline)
+        self.created = datetime.datetime.now()
+
+    def is_active(self):
+        """
+        Checks whether homework is active.
+        :return: True: in case if hw is active. False otherwise.
+        """
+        return datetime.datetime.now() - self.created < self.deadline
+
+
+class Student(Person):
+    """
+    Represents student's information.
+    """
+
+    # @staticmethod
+    def do_homework(self, homework, solution):
+        """
+        :param homework:
+        :param solution
+        :return: HomeworkResult in case if it's active, otherwise
+        :raise DeadlineError if deadline has expired.
+        """
+        if not homework.is_active():
+            raise DeadlineError('You are late')
+        return HomeworkResult(self, homework, solution)
+
+
+class Teacher(Person):
+    """
+    Represents teacher's information.
+    """
+
+    homework_done = defaultdict(set)
+
+    @staticmethod
+    def create_homework(text, deadline):
+        return Homework(text, deadline)
+
+    @classmethod
+    def check_homework(cls, homework_result):
+        if len(homework_result.solution) > 5:
+            cls.homework_done[homework_result.homework].add(
+                homework_result.solution)
+            return True
+        return False
+
+    @classmethod
+    def reset_results(cls, homework=None):
+        if homework:
+            cls.homework_done.pop(homework)
+        else:
+            cls.homework_done.clear()
+
+
 if __name__ == '__main__':
     opp_teacher = Teacher('Daniil', 'Shadrin')
     advanced_python_teacher = Teacher('Aleksandr', 'Smetanin')
