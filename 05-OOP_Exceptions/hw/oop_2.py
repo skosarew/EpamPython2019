@@ -137,7 +137,8 @@ class Teacher(Person):
     @classmethod
     def reset_results(cls, homework=None):
         if homework:
-            cls.homework_done.pop(homework)
+            if homework in cls.homework_done:
+                cls.homework_done.pop(homework)
         else:
             cls.homework_done.clear()
 

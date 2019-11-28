@@ -17,7 +17,7 @@ def instances_counter(cls):
 
     def __new__(cls, *args, **kwargs):
         cls._counter += 1
-        instance = super(User, cls).__new__(cls)
+        instance = super(cls, cls).__new__(cls)
         return instance
 
     @classmethod
@@ -46,3 +46,4 @@ if __name__ == '__main__':
     user, _, _ = User(), User(), User()
     print(user.get_created_instances())  # 3
     print(user.reset_instances_counter())  # 3
+
