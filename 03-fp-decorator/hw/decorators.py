@@ -114,15 +114,16 @@ def foo(*whatever):
     return whatever
 
 
-global_counter1 = [0, 0]
-global_counter2 = [0, 0]
-global_counter3 = [0, 0]
-global_counter4 = [0, 0]
-global_counter5 = [0, 0]
+global_counter1 = [0, 0, 'Recursion computation']
+global_counter2 = [0, 0, 'Cache computation']
+global_counter3 = [0, 0, 'Dynamic computation']
+global_counter4 = [0, 0, 'Matrix computation']
+global_counter5 = [0, 0, 'Closed-form expression']
 
 
 def profiling_decorator_with_counter(counter_name):
     def profiling_decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             globals()[counter_name][0] += 1
             if globals()[counter_name][0] == 1:
@@ -210,6 +211,25 @@ def fib5(n):
     return int(phi ** n / sqrt5 + 0.5)
 
 
+def find_best(counters):
+    """
+    Computes best performance by number of iterations and the total time
+     spent on these iterations
+    :param counters:
+    :return: The name of the best way to calculate Fibonacci
+    """
+    # result_list = []
+    max_val = 0
+    for counter in counters:
+        if counter[3] >= max_val:
+            max_val = counter[3]
+    result_list = [counter for counter in counters if counter[3] == max_val]
+
+    result_list = sorted(result_list, key=lambda x: (x[0], x[1]))
+
+    return f'Best performance by: {result_list[0][2]}'
+
+
 def main():
     # task 1
     print(special_pythagorean_triplet())
@@ -247,8 +267,19 @@ def main():
     fib4(100000)
     print('matrix, global4: ', global_counter4)
 
-    fib5(1000)
+    fib5(1100)
     print('formula, global5: ', global_counter5)
+
+    global_counter1.append(30)
+    global_counter2.append(35)
+    global_counter3.append(100000)
+    global_counter4.append(100000)
+    global_counter5.append(1100)
+
+    counters = [global_counter1, global_counter2, global_counter3,
+                global_counter4, global_counter5]
+    result = find_best(counters)
+    print(result)
 
 
 if __name__ == '__main__':
