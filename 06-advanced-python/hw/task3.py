@@ -19,8 +19,7 @@ class Suppressor:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         print(f'exit exception text: {exc_val}')
-        if exc_type in self.errors:
-            return True
+        return exc_type is not None and issubclass(exc_type, self.errors)
 
 
 if __name__ == '__main__':
