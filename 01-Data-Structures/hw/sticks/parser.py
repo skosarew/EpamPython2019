@@ -363,9 +363,7 @@ def info_for_wines(wines_processed, interesting_wines, information,
 
 
 def main():
-    file1 = 'winedata_1.json'
-    file2 = 'winedata_2.json'
-    files = (file1, file2)
+    files = 'winedata_1.json', 'winedata_2.json'
     file_full = 'winedata_full.json'
     file_stat = 'stats.json'
     wines_list = ('Gew\\u00fcrztraminer',

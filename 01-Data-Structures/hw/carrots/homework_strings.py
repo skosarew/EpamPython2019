@@ -49,7 +49,7 @@ def translate_from_dna_to_rna(dna):
     return rna
 
 
-def count_nucleotides(dna):
+def count_nucleotides_and_make_plot(dna):
     """DNA nucleotide statistics and creating graphs"""
     num_of_nucleotides = {}
     counter = Counter()
@@ -109,7 +109,7 @@ def main():
         codon = iter(lines)
         codons = dict(zip(codon, codon))
 
-    count_nucl = count_nucleotides(dna)
+    count_nucl = count_nucleotides_and_make_plot(dna)
     rna = translate_from_dna_to_rna(dna)
     protein = translate_rna_to_protein(rna, codons)
 
