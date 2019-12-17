@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Simple preforking echo server in Python.
+Simple preforking echo client_socket in Python.
 Python port of http://tomayko.com/writings/unicorn-is-unix.
 """
 
