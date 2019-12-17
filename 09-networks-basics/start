@@ -1,0 +1,6 @@
+#!/bin/bash
+
+gnome-terminal --tab --title="server" --command="python3 server.py '$SHELL'" \
+--tab --title="client1" --command="python3 client.py '$SHELL'" \
+--tab --title="client2" --command="python3 client.py '$SHELL'" \
+--tab --title="client3" --command="python3 client.py '$SHELL'"
