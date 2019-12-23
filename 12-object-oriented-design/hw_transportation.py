@@ -94,7 +94,10 @@ class Warehouse(Building):
 
 
 class Transport:
-    """Framework for transports"""
+    """Framework for transports
+    Args:
+        base (str): Base for transport.
+    """
 
     def __init__(self, base):
         self.base = base
