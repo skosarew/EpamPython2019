@@ -51,4 +51,4 @@ if __name__ == "__main__":
     coffe = Whip(coffe)
     coffe = Marshmallow(coffe)
     coffe = Syrup(coffe)
-    print("Итоговая стоимость за кофе: {}".format(str(coffe.get_cost())))
+    print("Итоговая стоимость чашки кофе: {}".format(str(coffe.get_cost())))
