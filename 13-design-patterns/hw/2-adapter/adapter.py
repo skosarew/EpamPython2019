@@ -74,7 +74,8 @@ class DocumentsHandler:
             if result['status'] == 'success':
                 stored_documents.append(result['document_id'])
             if result['status'] == 'error':
-                print("Couldn't upload document {}: {}".format(document, result['msg']))
+                print("Couldn't upload document {}: {}".format(document,
+                                                               result['msg']))
 
         self._document_ids.extend(stored_documents)
 
@@ -95,25 +96,50 @@ class DocumentsHandler:
             if result['status'] == 'success':
                 loaded_documents.append(result['document'])
             if result['status'] == 'error':
-                print("Couldn't load document with {} ID: {}".format(doc_id, result['msg']))
+                print("Couldn't load document with {} ID: {}".format(doc_id,
+                                                                     result[
+                                                                         'msg']))
 
         return loaded_documents
 
 
 def client_code(documents_handler):
     xml_files_to_upload = os.listdir(os.path.dirname(__file__) + '/documents')
-
+    print(xml_files_to_upload)
     document_ids = documents_handler.upload_documents(xml_files_to_upload)
     print(document_ids)
     print(documents_handler.get_documents(document_ids[1]))
+
+
+class Adapter:
+    def __init__(self, documents_handler):
+        self._documents_handler = documents_handler
+
+    def upload_documents(self, documents):
+        if not isinstance(documents, list):
+            documents = [documents]
+
+        stored_documents = []
+
+        for document in documents:
+            if document.endswith('.xml'):
+                document = document.replace('.xml', '.json')
+                stored_documents.append(document)
+
+        return self._documents_handler.upload_documents(stored_documents)
+
+    def get_documents(self, document_ids):
+        lst_of_docs = self._documents_handler.get_documents(document_ids)
+        return [i.replace('.json', '.xml') for i in lst_of_docs]
 
 
 if __name__ == "__main__":
     class App:
         pass  # Упрощенная реализация сложного приложения
 
+
     app = App()
     app.documents_handler = DocumentsHandler(StoreService())
     # Реализуйте класс Adapter и раскомментируйте строку ниже
-    # app.documents_handler = Adapter(app.documents_handler)
+    app.documents_handler = Adapter(app.documents_handler)
     client_code(app.documents_handler)

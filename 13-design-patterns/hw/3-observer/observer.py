@@ -49,3 +49,60 @@ Dear John, there is new playlist on 'All about dogs' channel: 'Dogs nutrition'
 Dear Erica, there is new playlist on 'All about dogs' channel: 'Dogs nutrition'
 
 """
+
+
+class MyTubeUser:
+    def __init__(self, name: str) -> None:
+        self._name = name
+
+    def update(self, msg):
+        print(f"Dear {self._name}, {msg}")
+
+
+class MyTubeChannel:
+    def __init__(self, channel_name: str, chanel_owner: MyTubeUser) -> None:
+        self._channel_name = channel_name
+        self._chanel_owner = chanel_owner
+        self._playlists = {}
+        self.videos = []
+        self._subscribers = []  # инициализация списка наблюдателей
+
+    def subscribe(self, user: MyTubeUser):
+        self._subscribers.append(user)
+
+    def publish_video(self, video: str):
+        self.videos.append(video)
+        msg = f"there is new video on '{self._channel_name}' channel: " \
+            f"{video}"
+        self.notify_subscribers(msg)
+
+    def notify_subscribers(self, msg):
+        for subscriber in self._subscribers:
+            subscriber.update(msg)
+
+    def publish_playlist(self, playlist):
+        name, content = list(playlist.items())[0]
+        self._playlists[name] = content
+        msg = f"there is new playlist on '{self._channel_name}' channel: " \
+            f"'{name}'"
+        print('msg: ', msg)
+        self.notify_subscribers(msg)
+
+
+if __name__ == '__main__':
+    matt = MyTubeUser('Matt')
+    john = MyTubeUser('John')
+    erica = MyTubeUser('Erica')
+
+    dogs_life = MyTubeChannel('All about dogs', matt)
+    dogs_life.subscribe(john)
+    dogs_life.subscribe(erica)
+
+    dogs_nutrition_videos = ['What do dogs eat?',
+                             'Which Pedigree pack to choose?']
+    dogs_nutrition_playlist = {'Dogs nutrition': dogs_nutrition_videos}
+
+    for video in dogs_nutrition_videos:
+        dogs_life.publish_video(video)
+
+    dogs_life.publish_playlist(dogs_nutrition_playlist)
