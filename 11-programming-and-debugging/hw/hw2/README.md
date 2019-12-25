@@ -6,7 +6,7 @@ absolute path to the files whose hash is specified as an argument.
 
 ## Launcing
 
-./foo.py path sha256
+./get_files_from_hash.py path sha256
 
 ## Define:
 1) which system call will be used most often (strace):
@@ -15,7 +15,7 @@ absolute path to the files whose hash is specified as an argument.
     
     The full information is in the sys_calls.txt.
     
-        $ sudo strace -o sys_calls.txt -c ./foo.py path sha256
+        $ sudo strace -o sys_calls.txt -c ./get_files_from_hash.py path sha256
  
  2) which part of the code is the “hottest” (profiling):
    
