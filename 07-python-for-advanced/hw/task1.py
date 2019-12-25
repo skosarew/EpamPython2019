@@ -61,8 +61,8 @@ class MetaSiam(type):
 
                 if pool_key in cls._pool_keys:
                     del cls._pool_keys[pool_key]
-            except NameError:
-                print("It's absent")
+            except (NameError, AttributeError) as e:
+                print("It's absent", e)
 
         args_kwargs_sorted, pool_key = get_k_pool_key(args, kwargs)
 
@@ -100,7 +100,5 @@ if __name__ == '__main__':
     pool = unit3.pool
     print('pool len init', len(pool))
     del unit3
-    del unit0
-
     print('pool len finish', len(pool))
-    unit6 = SiamObj('1', '1', a=0, b=33)
+
