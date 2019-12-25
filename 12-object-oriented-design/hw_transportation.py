@@ -1,149 +1,132 @@
 from collections import deque
+import logging
 
 
 class Building:
     """Framework for buildings"""
 
-    def send_vehicle(self):
-        """
-        Send vehicle from the base building.
-        """
-        raise NotImplementedError
+    def __init__(self):
+        self.vehicles = {}
+
+    def add_vehicles(self, *args):
+        for arg in args:
+            self.vehicles[arg] = 0
 
 
 class Factory(Building):
-    """
-    The Factory object has containers in stock.
-
-    Args:
-        self.stock (deque): The stock is used for tracing containers.
-        self.vehicles (dict): Factory owned vehicles.
-
-    """
+    """Building from which containers will be send."""
 
     def __init__(self, stock):
-        self.vehicles = {}
         self.stock = deque([i, 0] for i in stock)
-        super().__init__()
-
-    def send_vehicle(self):
-        cargo = self.stock.popleft()
-
-        # Choosing the vehicle that will return earlier from transportation
-        vehicle = min(self.vehicles, key=self.vehicles.get)
-        address = Warehouse.warehouses[cargo[0]]
-
-        if cargo[0] == 'A':
-            cargo[1] += port.travel_time + self.vehicles[vehicle]
-            vehicle.transportation(cargo, address)
-        else:
-            cargo[1] += address.travel_time + self.vehicles[vehicle]
-            vehicle.transportation(cargo, address)
+        super(Factory, self).__init__()
 
 
 class Port(Building):
-    """
-    The Port object has containers in stock.
-
-    Args:
-        travel_time (int): Travel time to the port.
-        self.stock (deque): The stock is used for tracing containers.
-        self.vehicles (dict): Factory owned vehicles.
-
-    """
+    """Intermediate building on the way between factory and warehouse."""
 
     def __init__(self, travel_time):
-        self.stock = deque()
-        self.vehicles = {}
         self.travel_time = travel_time
-        super().__init__()
-
-    def send_vehicle(self):
-        cargo = self.stock.popleft()
-        vehicle = min(self.vehicles, key=self.vehicles.get)
-        address = Warehouse.warehouses[cargo[0]]
-        if cargo[1] < self.vehicles[vehicle]:
-            cargo[1] = address.travel_time + self.vehicles[vehicle]
-            self.vehicles[vehicle] += address.travel_time * 2
-        else:
-            self.vehicles[vehicle] = cargo[1] + address.travel_time * 2
-            cargo[1] += address.travel_time
-
-        address.stock.append(cargo)
+        self.stock = deque()
+        super(Port, self).__init__()
 
 
-class Warehouse(Building):
+class Warehouse:
+    """Building to which containers will be send"""
     warehouses = {}
 
-    def __init__(self, name, travel_time):
+    def __init__(self, name, travel_time, port=None):
         self.travel_time = travel_time
         self.name = name
-        self.vehicles = {}
         self.stock = deque()
+        self.port = port
         Warehouse.warehouses[name] = self
-        super().__init__()
-
-    def __str__(self):
-        return f'Warehouse {self.name}'
-
-    def __repr__(self):
-        return f'Warehouse {self.name}'
-
-    def send_vehicle(self):
-        pass
 
 
 class Transport:
-    """Framework for transports
-    Args:
-        base (str): Base for transport.
-    """
+    """Vehicle to transport containers."""
 
-    def __init__(self, base):
-        self.base = base
-        self.base.vehicles[self] = 0
-
-    def transportation(self, cargo, address):
-        """
-        Send vehicle to the specified warehouse.
-        """
-        raise NotImplementedError
+    def __init__(self):
+        self.cargo = deque()
 
 
-class Truck(Transport):
-    def transportation(self, cargo, address):
-        if address == warehouse_a:
-            port.stock.append(cargo)
-            self.base.vehicles[self] += port.travel_time * 2
+def transportation(building):
+    """Returns cargo, address to deliver and vehicle who will transport"""
+    cargo = building.stock.popleft()
+    address = Warehouse.warehouses[cargo[0]]
+    vehicle = min(building.vehicles, key=building.vehicles.get)
+    return cargo, address, vehicle
+
+
+def send_vehicle_from_port(port):
+    """Sends vehicle from port to deliver containers."""
+    cargo, address, vehicle = transportation(port)
+
+    if cargo[1] < port.vehicles[vehicle]:
+        cargo[1] = address.travel_time + port.vehicles[vehicle]
+        port.vehicles[vehicle] += address.travel_time * 2
+    else:
+        port.vehicles[vehicle] = cargo[1] + address.travel_time * 2
+        cargo[1] += address.travel_time
+    address.stock.append(cargo)
+    logging.info(cargo)
+
+
+def send_vehicle(factory):
+    """Sends vehicle from factory to deliver containers."""
+    while factory.stock:
+        cargo, address, vehicle = transportation(factory)
+
+        # If there is port on the way
+        if address.port:
+            cargo[1] += address.port.travel_time + factory.vehicles[vehicle]
+            factory.vehicles[vehicle] += address.port.travel_time * 2
+            address.port.stock.append(cargo)
+            while address.port.stock:
+                send_vehicle_from_port(address.port)
         else:
+            # If vehicle still in on the way add to travel time of cargo
+            # journey time of vehicle
+            if cargo[1] < factory.vehicles[vehicle]:
+                cargo[1] = address.travel_time + factory.vehicles[vehicle]
+                factory.vehicles[vehicle] += address.travel_time * 2
+
+            # Ready to take cargo immediately
+            else:
+                factory.vehicles[vehicle] = cargo[1] + address.travel_time * 2
+                cargo[1] += address.travel_time
             address.stock.append(cargo)
-            self.base.vehicles[self] += address.travel_time * 2
-
-
-class Ship(Transport):
-    def transportation(self, cargo, address):
-        address.stock.append(cargo)
-        self.base.vehicles[self] += address.travel_time * 2 + 1
+            logging.info(cargo)
 
 
 if __name__ == '__main__':
-    inp = 'ABBBABAAABBB'
+    inp = input('Enter container sequence: ')
+
+    logging.basicConfig(filename="log_info.log",
+                        filemode="w", level=logging.INFO)
+    logging.info("Program started")
+
+    port1 = Port(1)
+    port2 = Port(1)
+    warehouse_a = Warehouse('A', 4, port=port1)
+    warehouse_b = Warehouse('B', 5, port=None)
+
     factory = Factory(inp)
-    warehouse_a = Warehouse('A', 4)
-    warehouse_b = Warehouse('B', 5)
-    port = Port(1)
 
-    truck1 = Truck(factory)
-    truck2 = Truck(factory)
-    ship = Ship(port)
+    truck1 = Transport()
+    truck2 = Transport()
 
-    while factory.stock:
-        factory.send_vehicle()
+    ship_a = Transport()
+    ship_b = Transport()
 
-    while port.stock:
-        port.send_vehicle()
+    factory.add_vehicles(truck1, truck2)
+    port1.add_vehicles(ship_a)
+    port2.add_vehicles(ship_b)
 
+    send_vehicle(factory)
     max_a = max(warehouse_a.stock)[1]
     max_b = max(warehouse_b.stock)[1]
-
-    print(max(max_a, max_b))
+    time = max(max_a, max_b)
+    print(time)
+    logging.info(f"Number of hours that it would take to get containers "
+                 f"delivered: {time} ")
+    logging.info("Finished")
