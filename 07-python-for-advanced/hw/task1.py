@@ -26,47 +26,65 @@ True
 
 """
 
-import sys
 import weakref
 
-class SingletonMeta(type):
-    _instances = weakref.WeakValueDictionary()
-    _pool_keys = {}
+
+class MetaSiam(type):
+
+    def __new__(mcs, *args, **kwargs):
+        cls = super(MetaSiam, mcs).__new__(mcs, *args, **kwargs)
+        cls._instances = weakref.WeakValueDictionary()
+        cls._pool_keys = {}
+
+        return cls
 
     def __call__(cls, *args, **kwargs):
         def get_k_pool_key(args, kwargs):
-            k = str(args) + ' ' + str(dict(sorted(kwargs.items(),
-                                                  key=lambda x: x[0])))
-            pool_key = tuple(list(args) + list(kwargs.values()))
-            return k, pool_key
+            args_kwargs_sorted = str(args) + ' ' + str(
+                dict(sorted(kwargs.items(),
+                            key=lambda x: x[0])))
 
-        k, pool_key = get_k_pool_key(args, kwargs)
-        cls._pool_keys[pool_key] = k
+            ordered_dict = dict(sorted(kwargs.items(), key=lambda x: x[0]))
+            pool_key = tuple(list(args) + list(ordered_dict.values()))
+            return args_kwargs_sorted, pool_key
 
         def connect_func(*args, **kwargs):
-            pool_key = tuple(list(args) + list(kwargs.values()))
-            return cls._instances[cls._pool_keys[pool_key]]
+            args_kwargs_sorted, pool_key = get_k_pool_key(args, kwargs)
+            return cls._instances[cls._pool_keys[pool_key], cls]
 
-        # @classmethod
         def custom_del(instance):
-            k, pool_key = get_k_pool_key(instance.args, instance.kwargs)
-            if k in cls._instances:
-                del cls._instances[k]
+            try:
+                args_kwargs_sorted, pool_key = get_k_pool_key(instance.args,
+                                                              instance.kwargs)
+                if args_kwargs_sorted in cls._instances:
+                    del cls._instances[args_kwargs_sorted]
 
-            if pool_key in cls._pool_keys:
-                del cls._pool_keys[pool_key]
+                if pool_key in cls._pool_keys:
+                    del cls._pool_keys[pool_key]
+            except NameError:
+                print("It's absent")
 
-        if k not in cls._instances:
-            instance = super(SingletonMeta, cls).__call__(*args, **kwargs)
+        args_kwargs_sorted, pool_key = get_k_pool_key(args, kwargs)
+
+        if args_kwargs_sorted not in cls._pool_keys.values():
+            cls._pool_keys[pool_key] = args_kwargs_sorted
+
+        if (args_kwargs_sorted, cls) not in cls._instances:
+            instance = super(MetaSiam, cls).__call__(*args, **kwargs)
+            cls._instances[(args_kwargs_sorted, cls)] = instance
             cls.__del__ = custom_del
-            cls._instances[k] = instance
             instance.connect = connect_func
             instance.pool = cls._instances
             return instance
-        return cls._instances[k]
+        return cls._instances[(args_kwargs_sorted, cls)]
 
 
-class SiamObj(metaclass=SingletonMeta):
+class SiamObj(metaclass=MetaSiam):
+    def __init__(self, *args, **kwargs):
+        self.__dict__ = dict(kwargs)
+        self.args = args
+        self.kwargs = kwargs
+class SiamSubj(metaclass=MetaSiam):
     def __init__(self, *args, **kwargs):
         self.__dict__ = dict(kwargs)
         self.args = args
@@ -74,12 +92,15 @@ class SiamObj(metaclass=SingletonMeta):
 
 
 if __name__ == '__main__':
-    unit1 = SiamObj('1', '2', a=1)
-    unit2 = SiamObj('1', '2', a=1)
-    unit3 = SiamObj('2', '2', a=1)
+    unit0 = SiamObj()
+    unit1 = SiamObj('1', '2', a=1, b=3, c=10)
+    unit2 = SiamObj('1', '2', b=3, c=10, a=1)
+    unit3 = SiamObj('2', '2', a=0, b=33)
 
-    unit3.connect('1', '2', 1).a = 2
     pool = unit3.pool
     print('pool len init', len(pool))
     del unit3
+    del unit0
+
     print('pool len finish', len(pool))
+    unit6 = SiamObj('1', '1', a=0, b=33)
