@@ -21,6 +21,21 @@
 
 import uuid
 import os
+from abc import ABC, abstractmethod
+
+
+class Client(ABC):
+    """
+    Абстрактный клиент
+    """
+
+    @abstractmethod
+    def upload_documents(self, documents):
+        pass
+
+    @abstractmethod
+    def get_documents(self, document_ids):
+        pass
 
 
 class StoreService:
@@ -52,7 +67,7 @@ class StoreService:
         }
 
 
-class DocumentsHandler:
+class DocumentsHandler(Client):
     _service = None
     _document_ids = []
 

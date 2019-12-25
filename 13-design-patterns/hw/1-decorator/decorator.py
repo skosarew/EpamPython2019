@@ -2,11 +2,17 @@
 Используя паттерн "Декоратор" реализуйте возможность дополнительно добавлять к кофе
     маршмеллоу, взбитые сливки и сироп, а затем вычислить итоговую стоимость напитка.
 """
+from abc import ABC, abstractmethod
 
 
-class Component:
+class Component(ABC):
+    """
+    Базовый интерфейс Компонента определяет поведение, которое изменяется декораторами.
+    """
+
+    @abstractmethod
     def get_cost(self):
-        raise NotImplementedError("Override get_cost method")
+        pass
 
 
 class BaseCoffe(Component):

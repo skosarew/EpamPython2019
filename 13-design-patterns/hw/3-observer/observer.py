@@ -50,8 +50,43 @@ Dear Erica, there is new playlist on 'All about dogs' channel: 'Dogs nutrition'
 
 """
 
+from abc import ABC, abstractmethod
 
-class MyTubeUser:
+
+class Observer(ABC):
+    """
+    Абстрактный наблюдатель
+    """
+
+    @abstractmethod
+    def update(self, message: str) -> None:
+        """
+        Получение нового сообщения
+        """
+        pass
+
+
+class Observable(ABC):
+    """
+    Абстрактный наблюдаемый
+    """
+
+    def __init__(self, channel_name: str, chanel_owner: Observer) -> None:
+        self._channel_name = channel_name
+        self._chanel_owner = chanel_owner
+        self._playlists = {}
+        self.videos = []
+        self._subscribers = []  # инициализация списка наблюдателей
+
+    def subscribe(self, user: Observer):
+        self._subscribers.append(user)
+
+    def notify_subscribers(self, msg):
+        for subscriber in self._subscribers:
+            subscriber.update(msg)
+
+
+class MyTubeUser(Observer):
     def __init__(self, name: str) -> None:
         self._name = name
 
@@ -59,26 +94,12 @@ class MyTubeUser:
         print(f"Dear {self._name}, {msg}")
 
 
-class MyTubeChannel:
-    def __init__(self, channel_name: str, chanel_owner: MyTubeUser) -> None:
-        self._channel_name = channel_name
-        self._chanel_owner = chanel_owner
-        self._playlists = {}
-        self.videos = []
-        self._subscribers = []  # инициализация списка наблюдателей
-
-    def subscribe(self, user: MyTubeUser):
-        self._subscribers.append(user)
-
+class MyTubeChannel(Observable):
     def publish_video(self, video: str):
         self.videos.append(video)
         msg = f"there is new video on '{self._channel_name}' channel: " \
             f"{video}"
         self.notify_subscribers(msg)
-
-    def notify_subscribers(self, msg):
-        for subscriber in self._subscribers:
-            subscriber.update(msg)
 
     def publish_playlist(self, playlist):
         name, content = list(playlist.items())[0]
