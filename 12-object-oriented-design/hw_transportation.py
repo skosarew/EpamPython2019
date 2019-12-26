@@ -39,23 +39,12 @@ class Factory(Building):
         super(Factory, self).__init__(self.stock)
 
     def factory_depart(self):
-
         # Define cargo, address, vehicle to depart from factory
         cargo = self.detach_cargo()
         address = Warehouse.warehouses[cargo[0]]
         vehicle = self.find_vehicle_with_less_travel_time()
 
-        # If there is port on the way add additional time
-        if address.has_port:
-            cargo[1] += address.port.travel_time + vehicle.travel_time
-            vehicle.travel_time += address.port.travel_time * 2
-            address.port.attach_cargo(cargo)
-
-            # Change vehicle to ship
-            vehicle = address.port.find_vehicle_with_less_travel_time()
-            travel.send_vehicle_from_port(cargo, address, vehicle)
-        else:
-            travel.send_vehicle_from_factory(cargo, address, vehicle)
+        return cargo, address, vehicle
 
 
 class Port(Building):
@@ -91,7 +80,19 @@ class Travelling:
         self.factory = factory
 
     def start_travel(self):
-        self.factory.factory_depart()
+        cargo, address, vehicle = self.factory.factory_depart()
+
+        # If there is port on the way move to port and add additional time
+        if address.has_port:
+            cargo[1] += address.port.travel_time + vehicle.travel_time
+            vehicle.travel_time += address.port.travel_time * 2
+            address.port.attach_cargo(cargo)
+
+            # Change vehicle to ship
+            vehicle = address.port.find_vehicle_with_less_travel_time()
+            self.send_vehicle_from_port(cargo, address, vehicle)
+        else:
+            self.send_vehicle_from_factory(cargo, address, vehicle)
 
     def send_vehicle_from_port(self, cargo, address, vehicle):
         """Sends vehicle from port to deliver containers."""
@@ -104,7 +105,6 @@ class Travelling:
 
         address.attach_cargo(cargo)
         address.port.detach_cargo()
-
 
     def send_vehicle_from_factory(self, cargo, address, vehicle):
         """Sends vehicle from factory to deliver containers."""
