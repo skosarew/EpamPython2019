@@ -101,8 +101,8 @@ class Travelling:
         address.attach_cargo(cargo)
         address.port.detach_cargo()
 
-        while address.port.is_stock:
-            address.port.transportation(cargo, address)
+        # while address.port.is_stock:
+        #     address.port.transportation(cargo, address)
 
     def send_vehicle_from_factory(self, cargo, address, vehicle):
         """Sends vehicle from factory to deliver containers."""
