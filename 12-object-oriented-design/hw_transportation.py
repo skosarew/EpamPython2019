@@ -38,12 +38,14 @@ class Factory(Building):
         self.stock = deque([i, 0] for i in stock)
         super(Factory, self).__init__(self.stock)
 
-    def transportation(self, travel):
+    def factory_depart(self):
+
+        # Define cargo, address, vehicle to depart from factory
         cargo = self.detach_cargo()
         address = Warehouse.warehouses[cargo[0]]
         vehicle = self.find_vehicle_with_less_travel_time()
 
-        # If there is port on the way
+        # If there is port on the way add additional time
         if address.has_port:
             cargo[1] += address.port.travel_time + vehicle.travel_time
             vehicle.travel_time += address.port.travel_time * 2
@@ -85,9 +87,11 @@ class Warehouse:
 
 
 class Travelling:
-    def __init__(self, factory, *warehouses):
+    def __init__(self, factory):
         self.factory = factory
-        self.warehouses = warehouses
+
+    def start_travel(self):
+        self.factory.factory_depart()
 
     def send_vehicle_from_port(self, cargo, address, vehicle):
         """Sends vehicle from port to deliver containers."""
@@ -101,8 +105,6 @@ class Travelling:
         address.attach_cargo(cargo)
         address.port.detach_cargo()
 
-        # while address.port.is_stock:
-        #     address.port.transportation(cargo, address)
 
     def send_vehicle_from_factory(self, cargo, address, vehicle):
         """Sends vehicle from factory to deliver containers."""
@@ -131,12 +133,13 @@ class Transport:
 
 if __name__ == '__main__':
     inp = input('Enter container sequence: ')
+
     logging.basicConfig(filename="log_info.log",
                         filemode="w", level=logging.INFO)
     logging.info("Program started")
 
     port1 = Port(1)
-
+    port2 = Port(1)
     warehouse_a = Warehouse('A', 4, port=port1)
     warehouse_b = Warehouse('B', 5, port=None)
 
@@ -146,14 +149,16 @@ if __name__ == '__main__':
     truck2 = Transport()
 
     ship_a = Transport()
+    ship_b = Transport()
 
     factory1.add_vehicles(truck1, truck2)
     port1.add_vehicles(ship_a)
+    port2.add_vehicles(ship_b)
 
-    travel = Travelling(factory1, warehouse_a, warehouse_b)
+    travel = Travelling(factory1)
 
     while factory1.stock:
-        factory1.transportation(travel)
+        travel.start_travel()
 
     max_a = max(warehouse_a.stock)[1]
     max_b = max(warehouse_b.stock)[1]
