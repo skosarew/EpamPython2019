@@ -91,6 +91,7 @@ class Travelling:
 
     # @staticmethod
     def send_vehicle_from_port(self, cargo, address, vehicle):
+        """Sends vehicle from port to deliver containers."""
         if cargo[1] < vehicle.travel_time:
             cargo[1] = address.travel_time + vehicle.travel_time
             vehicle.travel_time += address.travel_time * 2
@@ -106,7 +107,7 @@ class Travelling:
 
     # @staticmethod
     def send_vehicle_from_factory(self, cargo, address, vehicle):
-        """Sends vehicle from port to deliver containers."""
+        """Sends vehicle from factory to deliver containers."""
         if cargo[1] < vehicle.travel_time:
             cargo[1] = address.travel_time + vehicle.travel_time
             vehicle.set_travel_time(address.travel_time * 2)
