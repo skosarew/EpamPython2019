@@ -5,12 +5,12 @@ import logging
 class Building:
     """Framework for buildings"""
 
-    def __init__(self):
+    def __init__(self, stock):
         self.vehicles = []
+        self.stock = stock
 
     def add_vehicles(self, *args):
-        for arg in args:
-            self.vehicles.append(arg)
+        self.vehicles.extend(args)
 
     def attach_cargo(self, cargo):
         self.stock.append(cargo)
@@ -22,7 +22,7 @@ class Building:
     def is_stock(self):
         return self.stock
 
-    def find_min(self):
+    def find_vehicle_with_less_travel_time(self):
         min_val, vehicle = float('inf'), None
         for v in self.vehicles:
             if v.travel_time < min_val:
@@ -36,21 +36,21 @@ class Factory(Building):
 
     def __init__(self, stock):
         self.stock = deque([i, 0] for i in stock)
-        super(Factory, self).__init__()
+        super(Factory, self).__init__(self.stock)
 
     def transportation(self, travel):
         cargo = self.detach_cargo()
         address = Warehouse.warehouses[cargo[0]]
-        vehicle = self.find_min()
+        vehicle = self.find_vehicle_with_less_travel_time()
 
         # If there is port on the way
-        if address.port:
+        if address.has_port:
             cargo[1] += address.port.travel_time + vehicle.travel_time
             vehicle.travel_time += address.port.travel_time * 2
             address.port.attach_cargo(cargo)
 
-            # Change to ship
-            vehicle = address.port.find_min()
+            # Change vehicle to ship
+            vehicle = address.port.find_vehicle_with_less_travel_time()
             travel.send_vehicle_from_port(cargo, address, vehicle)
         else:
             travel.send_vehicle_from_factory(cargo, address, vehicle)
@@ -62,7 +62,7 @@ class Port(Building):
     def __init__(self, travel_time):
         self.travel_time = travel_time
         self.stock = deque()
-        super(Port, self).__init__()
+        super(Port, self).__init__(self.stock)
 
 
 class Warehouse:
@@ -89,7 +89,6 @@ class Travelling:
         self.factory = factory
         self.warehouses = warehouses
 
-    # @staticmethod
     def send_vehicle_from_port(self, cargo, address, vehicle):
         """Sends vehicle from port to deliver containers."""
         if cargo[1] < vehicle.travel_time:
@@ -105,7 +104,6 @@ class Travelling:
         while address.port.is_stock:
             address.port.transportation(cargo, address)
 
-    # @staticmethod
     def send_vehicle_from_factory(self, cargo, address, vehicle):
         """Sends vehicle from factory to deliver containers."""
         if cargo[1] < vehicle.travel_time:
