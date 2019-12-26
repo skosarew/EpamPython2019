@@ -16,7 +16,7 @@ class Building:
         self.stock.append(cargo)
 
     def detach_cargo(self):
-        self.stock.popleft()
+        return self.stock.popleft()
 
     @property
     def is_stock(self):
@@ -39,7 +39,7 @@ class Factory(Building):
         super(Factory, self).__init__()
 
     def transportation(self, travel):
-        cargo = self.stock.popleft()
+        cargo = self.detach_cargo()
         address = Warehouse.warehouses[cargo[0]]
         vehicle = self.find_min()
 
