@@ -4,4 +4,5 @@ python:
 
 script: 
 
-  - python hw/hw4/backend.py
+  - python .11-programming-and-debugging/hw/hw4/backend.py
+
