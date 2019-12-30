@@ -3,9 +3,6 @@ from flask import Flask, request, jsonify
 app = Flask(__name__)
 
 
-
-
-
 # root
 @app.route("/")
 def index():
@@ -24,7 +21,7 @@ def hello_user(user):
     :param user:
     :return: str
     """
-    return "Hello %s!" % user
+    return f"Hello {user}!"
 
 
 # POST
@@ -45,4 +42,3 @@ def get_text_prediction():
 # running web app in local machine
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
-
