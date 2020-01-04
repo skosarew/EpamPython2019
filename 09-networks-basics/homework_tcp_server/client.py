@@ -15,23 +15,23 @@ username_current = my_username.encode('utf-8')
 username_header = f"{len(username_current):<{HEADER_LENGTH}}".encode('utf-8')
 server.send(username_header + username_current)
 
-
 while True:
 
     # maintains a list of possible input streams
     sockets_list = [sys.stdin, server]
 
-    """ There are two possible input situations. Either the 
-    user wants to give  manual input to send to other people, 
-    or the server is sending a message  to be printed on the 
-    screen. Select returns from sockets_list, the stream that 
-    is reader for input. So for example, if the server wants 
-    to send a message, then the if condition will hold true 
-    below.If the user wants to send a message, the else 
+    """ There are two possible input situations. Either the
+    user wants to give  manual input to send to other people,
+    or the server is sending a message  to be printed on the
+    screen. Select returns from sockets_list, the stream that
+    is reader for input. So for example, if the server wants
+    to send a message, then the if condition will hold true
+    below.If the user wants to send a message, the else
     condition will evaluate as true"""
     read_sockets, write_socket, error_socket =\
         select.select(sockets_list, [], [])
 
+    print('msg: ')
     for socks in read_sockets:
 
         # Server send message
@@ -52,6 +52,7 @@ while True:
                 print(f'{message}')
             else:
                 message_header = server.recv(HEADER_LENGTH)
+                print("message_header: ", message_header)
                 message_length = int(message_header.decode('utf-8').strip())
                 message = server.recv(message_length).decode('utf-8')
                 print(f'<{username}> {message}')
@@ -59,7 +60,7 @@ while True:
         # User send message to server
         else:
             message = input()
-
+            print('message: ', message)
             # Exit
             if message.strip() == 'q':
                 print('We will miss you')

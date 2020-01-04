@@ -56,7 +56,7 @@ def find_top10_tags(all_tags):
 
 if __name__ == '__main__':
     grabber = PikabuGrabber()
-    pages = grabber.get_pages(url='https://pikabu.ru/subs', quantity=10)
+    pages = grabber.get_pages(url='https://pikabu.ru/new/subs', quantity=10)
 
     all_tags = count_all_tags(pages)
     number_of_all_tags = len(all_tags)
