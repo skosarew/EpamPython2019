@@ -51,11 +51,8 @@ class App(QtWidgets.QMainWindow):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = chat_ui.Ui_TCPchat()
         self.ui.setupUi(self)
-        self.initUI()
-        self.client = Client(IP_address, Port)
-
-    def initUI(self):
         self.ui.pushButton.clicked.connect(self.send_msg)
+        self.client = Client(IP_address, Port)
 
     def send_msg(self):
         msg = self.ui.lineEdit.text()
