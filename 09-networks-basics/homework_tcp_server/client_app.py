@@ -29,7 +29,6 @@ class Client:
             f"{len(self.username_current):<{HEADER_LENGTH}}".encode('utf-8')
         self.client_socket.send(self.username_header + self.username_current)
         self.online = True
-        # self.sockets_list = [sys.stdin, self.client_socket]
 
     def send_msg(self, msg):
 
@@ -56,7 +55,6 @@ class App(QtWidgets.QMainWindow):
         self.ui.pushButton.clicked.connect(self.send_msg)
         self.client = Client(IP_address, Port)
         self.receive_thread = None
-        self.stop_threads = False
         self.msg = ''
 
     def send_msg(self):
@@ -75,7 +73,6 @@ class App(QtWidgets.QMainWindow):
                 self.ui.textEdit.append(f"<You> {self.msg}")
             elif self.msg == "q":
                 self.client.online = False
-                print('inside App')
                 self.closeEvent('dont know')
             elif self.msg.startswith('@'):
                 self.ui.textEdit.append(f"<You> {self.msg}")
@@ -89,7 +86,6 @@ class App(QtWidgets.QMainWindow):
                 HEADER_LENGTH)
 
             if not self.client.username_header:
-                print('Goodbye')
                 sys.exit()
 
             # Convert header to int value
@@ -115,9 +111,8 @@ class App(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self.client.send_msg(r"Farewell...")
         self.client.online = False
-        self.stop_threads = True
         self.close()
-        signal.signal(signal.SIGTERM, True)
+        # signal.signal(signal.SIGTERM, True)
 
 
 if __name__ == "__main__":
