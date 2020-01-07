@@ -7,6 +7,7 @@ Port = 1234
 import chat_ui
 import threading
 import sys
+import signal
 
 from PyQt5 import QtWidgets
 
@@ -28,7 +29,7 @@ class Client:
             f"{len(self.username_current):<{HEADER_LENGTH}}".encode('utf-8')
         self.client_socket.send(self.username_header + self.username_current)
         self.online = True
-        self.sockets_list = [sys.stdin, self.client_socket]
+        # self.sockets_list = [sys.stdin, self.client_socket]
 
     def send_msg(self, msg):
 
@@ -39,7 +40,8 @@ class Client:
             print('We will miss you')
             self.online = False
 
-        elif message:
+        else:
+            # message:
             message = message.encode('utf-8')
             message_header = \
                 f"{len(message):<{HEADER_LENGTH}}".encode('utf-8')
@@ -53,45 +55,69 @@ class App(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.ui.pushButton.clicked.connect(self.send_msg)
         self.client = Client(IP_address, Port)
+        self.receive_thread = None
+        self.stop_threads = False
+        self.msg = ''
 
     def send_msg(self):
-        msg = self.ui.lineEdit.text()
+        self.msg = self.ui.lineEdit.text()
 
         if not self.client.online:
-            self.client.nickname = msg
-            self.client.start(msg)
-            receive_thread = threading.Thread(target=self.receive_msg)
-            receive_thread.start()
-            self.ui.textEdit.append(f"Welcome to chat, {msg}!")
+            self.client.nickname = self.msg
+            self.client.start(self.msg)
+            self.receive_thread = threading.Thread(target=self.receive_msg)
+            self.receive_thread.start()
+
+            self.ui.textEdit.append(f"Welcome to chat, {self.msg}!")
         else:
-            self.ui.textEdit.append(f"<You> {msg}")
-            self.client.send_msg(msg)
-            if msg == "q":
+            # self.ui.textEdit.append(f"<You> {msg}")
+            if self.msg == 'members':
+                self.ui.textEdit.append(f"<You> {self.msg}")
+            elif self.msg == "q":
+                self.client.online = False
+                print('inside App')
                 self.closeEvent('dont know')
+            elif self.msg.startswith('@'):
+                self.ui.textEdit.append(f"<You> {self.msg}")
+            self.client.send_msg(self.msg)
+
         self.ui.lineEdit.clear()
 
     def receive_msg(self):
         while self.client.online:
-            username_header = self.client.client_socket.recv(HEADER_LENGTH)
-            if not len(self.client.username_header):
-                print('Connection closed by the server')
+            self.client.username_header = self.client.client_socket.recv(
+                HEADER_LENGTH)
+
+            if not self.client.username_header:
+                print('Goodbye')
                 sys.exit()
 
             # Convert header to int value
-            username_length = int(username_header.decode('utf-8').strip())
+            username_length = int(
+                self.client.username_header.decode('utf-8').strip())
             # Receive and decode username
             username = self.client.client_socket.recv(username_length).decode(
                 'utf-8')
 
+            # Check whether message was send by another person
             message_header = self.client.client_socket.recv(HEADER_LENGTH)
             message_length = int(message_header.decode('utf-8').strip())
             message = self.client.client_socket.recv(message_length).decode(
                 'utf-8')
-            self.ui.textEdit.append(f'<{username}> {message}')
+            if self.client.my_username != username:
+                self.ui.textEdit.append(f'<{username}> {message}')
+            elif self.client.my_username == username:
+                if self.msg != 'members':
+                    self.ui.textEdit.append(f"<You> {message}")
+                elif self.msg == 'members':
+                    self.ui.textEdit.append(f"    *{message}")
 
     def closeEvent(self, event):
         self.client.send_msg(r"Farewell...")
+        self.client.online = False
+        self.stop_threads = True
         self.close()
+        signal.signal(signal.SIGTERM, True)
 
 
 if __name__ == "__main__":
