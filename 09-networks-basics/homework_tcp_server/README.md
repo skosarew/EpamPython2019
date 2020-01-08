@@ -4,9 +4,9 @@ script.
 
 ### Initialization
 Run the start script to start the server and create three clients:
-
+```
 ./start
-
+```
 Or one could launch server and client scripts manually in different terminals.
 
 ### Commands
@@ -15,3 +15,12 @@ Or one could launch server and client scripts manually in different terminals.
 * Type 'members' to see the list of participants.
 * Type @username to send message to specific member.
 * Type 'q' to exit.
+
+
+### Update
+
+Now application has it's own form for tcp client which can be started by:
+
+```
+python3 clien_app.py
+```
