@@ -5,8 +5,18 @@ import pymongo
 
 
 class MyStorage:
+    """
+    Base class for different storage types.
+    """
     @staticmethod
     def check_exec_serial(serialization, json_f, pickle_f):
+        """
+        Checks serialization type
+        :param serialization:
+        :param json_f: function for interaction with storage
+        :param pickle_f: function for interaction with storage
+        :return:
+        """
         if serialization == 'json':
             return json_f()
         elif serialization == 'pickle':
@@ -48,6 +58,10 @@ class FileStorage(MyStorage):
 
 
 class PostgresStorage(MyStorage):
+    """
+    Class creates connection with Postgres database and save data in out_table
+    which contains one row.
+    """
     def __init__(self, postgres_conn):
         self.postgres_conn = postgres_conn
 
@@ -111,6 +125,10 @@ class PostgresStorage(MyStorage):
 
 
 class MongoStorage(MyStorage):
+    """
+    Class creates connection with Mongo database and save data in out_table
+    which contains one row.
+    """
     def __init__(self, mongo_connection):
         self.mongo_connection = mongo_connection
         self.my_database = mongo_connection.epam
