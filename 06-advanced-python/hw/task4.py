@@ -62,12 +62,6 @@ class PrintableFile:
     def __repr__(self):
         return self.name
 
-    def __contains__(self, item):
-        if item == 1:
-            return True
-        else:
-            return False
-
 
 if __name__ == "__main__":
     file1 = PrintableFile('file1')
