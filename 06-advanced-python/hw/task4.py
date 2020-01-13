@@ -39,6 +39,8 @@ class PrintableFolder:
     def __contains__(self, item):
         if not self.content:
             return False
+        elif isinstance(self.content, PrintableFile) and self.content != item:
+            return False
         elif self.content == item or item in self.content:
             return True
         else:
@@ -60,6 +62,12 @@ class PrintableFile:
     def __repr__(self):
         return self.name
 
+    def __contains__(self, item):
+        if item == 1:
+            return True
+        else:
+            return False
+
 
 if __name__ == "__main__":
     file1 = PrintableFile('file1')
@@ -71,3 +79,4 @@ if __name__ == "__main__":
 
     print(folder1)
     print(file3 in folder2)
+    print(file1 in folder3)
