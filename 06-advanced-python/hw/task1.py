@@ -17,14 +17,6 @@ class GraphIterator(collections.abc.Iterator):
         self.cc = {}
         self.search()
 
-    # def search(self):
-    #     while self.search_deque:
-    #         vertex = self.search_deque.popleft()
-    #         for neighbour in self.collection[vertex]:
-    #             if neighbour not in self.visited:
-    #                 self.visited.append(neighbour)
-    #                 self.search_deque.append(neighbour)
-
     def search(self):
         num_cc = 0
 
@@ -67,12 +59,12 @@ class Graph:
 
 
 E = {'A': ['B', 'E'],
-         'B': ['A', 'E'],
-         'C': ['F', 'G'],
-         'D': [],
-         'E': ['A', 'B'],
-         'F': ['C'],
-         'G': ['C']}
+     'B': ['A', 'E'],
+     'C': ['F', 'G'],
+     'D': [],
+     'E': ['A', 'B'],
+     'F': ['C'],
+     'G': ['C']}
 
 graph = Graph(E)
 
