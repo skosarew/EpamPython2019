@@ -13,10 +13,37 @@ class GraphIterator(collections.abc.Iterator):
         self.cursor = -1
         self.root = next(iter(collection))
         self.search_deque = collections.deque(self.root)
-        self.visited = [self.root]
+        self.visited = []
+        self.cc = {}
         self.search()
 
+    # def search(self):
+    #     while self.search_deque:
+    #         vertex = self.search_deque.popleft()
+    #         for neighbour in self.collection[vertex]:
+    #             if neighbour not in self.visited:
+    #                 self.visited.append(neighbour)
+    #                 self.search_deque.append(neighbour)
+
     def search(self):
+        num_cc = 0
+
+        for i in self.collection:
+            # print(i)
+            if i not in self.visited:
+                num_cc += 1
+                self.visited.append(i)
+                self.search_deque = collections.deque(i)
+                while self.search_deque:
+                    vertex = self.search_deque.popleft()
+                    self.cc[vertex] = num_cc
+                    for neighbour in self.collection[vertex]:
+                        if neighbour not in self.visited:
+                            self.visited.append(neighbour)
+                            self.search_deque.append(neighbour)
+
+        print()
+
         while self.search_deque:
             vertex = self.search_deque.popleft()
             for neighbour in self.collection[vertex]:
@@ -39,7 +66,14 @@ class Graph:
         return GraphIterator(self.E)
 
 
-E = {'A': ['B', 'C', 'D'], 'B': ['C'], 'C': [], 'D': ['A']}
+E = {'A': ['B', 'E'],
+         'B': ['A', 'E'],
+         'C': ['F', 'G'],
+         'D': [],
+         'E': ['A', 'B'],
+         'F': ['C'],
+         'G': ['C']}
+
 graph = Graph(E)
 
 for vertex in graph:
